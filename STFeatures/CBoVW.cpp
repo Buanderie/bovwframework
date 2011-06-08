@@ -1,9 +1,12 @@
 #include "CBoVW.h"
 #include "STFeature.h"
 #include "STExtractor.h"
+#include "GenUtils.h"
 #include "..\kmpp\KMeans.h"
 #include <stdlib.h>
 #include <time.h>
+
+#include <fstream>
 
 #include <opencv2\highgui\highgui.hpp>
 #include <opencv2\core\core.hpp>
@@ -135,9 +138,17 @@ void BOW::computeBoW( std::vector<STFeature>& features, std::vector< float >& ou
 	bow.resize( _vocabSize );
 	std::fill( bow.begin(), bow.end(), 0 );
 	cout << "VQ Step..." << endl;
+	
+	int lastPercent = 0;
+
 	for (int i = 0; i < features.size(); ++i )
 	{
-		cout << ceil( (double)i / (double)(features.size())*100 ) << endl;
+		int progress = (int)(ceil( (double)i / (double)(features.size())*100 ));
+		if( progress != lastPercent )
+		{
+			cout << progress << "%" << endl;
+			lastPercent = progress;
+		}
 		int word = featureVQ( features[i] );
 		bow[ word ] += 1;
 	}
@@ -158,6 +169,9 @@ void BOW::computeBoW( std::vector<STFeature>& features, std::vector< float >& ou
 
 int BOW::featureVQ( STFeature& feat )
 {
+	/*
+	* TODO: kD-Tree descent instead of naive O( n . d . |w| )
+	*/
 	float mindist = FLT_MAX;
 	int min_idx = -1;
 	float sqsum = 0;
@@ -169,7 +183,7 @@ int BOW::featureVQ( STFeature& feat )
 		sqsum = 0.0f;
 		for (int j = 0; j < wordLength; ++j )
 		{
-			float centerValue = _clusterCenters[ i * wordLength + j ];
+			float centerValue = _vocabulary[i][j];
 			sqsum += (featValues[j]-centerValue)*(featValues[j]-centerValue);
 		}
 		float dist = sqrtf(sqsum);
@@ -237,6 +251,26 @@ void BOW::computeVocabulary()
 	// 3 - Start kMeans
 	AddKMeansLogging( &cout, true );
 	RunKMeans( nFeatures, _vocabSize, szWord, _featurePool, 1, _clusterCenters, _kmeansResults );
+
+	// 4 - Tidy up eveything
+	// Copy raw data from kMeans to more structured DS
+	_vocabulary.resize( _vocabSize );
+	for( int i = 0; i < _vocabSize; ++i )
+	{
+		_vocabulary[i].resize( szWord );
+		for( int j = 0; j < szWord; ++j )
+		{
+			_vocabulary[i][j] = _clusterCenters[ szWord * i + j];
+		}
+	}
+	//
+	// Remove kMeans raw data from memory
+	delete[] _clusterCenters;
+	delete[] _kmeansResults;
+	delete[] _featurePool;
+	_clusterCenters = 0;
+	_kmeansResults = 0;
+	_featurePool = 0;
 }
 
 void BOW::computeBoW()
@@ -250,6 +284,94 @@ void BOW::computeBoW()
 std::vector< videntry_t >& BOW::getVideoEntries()
 {
 	return this->_videoEntry;
+}
+
+/*
+*	Save the computed vocabulary for further use...
+*/
+void BOW::saveVocabulary( std::string fileName )
+{
+	ofstream ofs( fileName.c_str() );
+	int szWord = _vocabulary[0].size();
+
+	//Write Magic Number
+	ofs << "26098677" << endl;
+
+	//Write vocabulary size (# of words)
+	ofs << this->_vocabSize << endl;
+
+	//Write word length (# of floating point values)
+	ofs << szWord << endl;
+
+	//Write CSV codeword data
+	for( int i = 0; i < _vocabulary.size(); ++i )
+	{
+		for( int j = 0; j < szWord; ++j )
+		{
+			ofs << _vocabulary[i][j] << ";";
+		}
+		ofs << endl;
+	}
+
+	//Write reversed Magic Number (EOF)
+	ofs << "77689062" << endl;
+}
+
+/*
+* Load the vocabulary file
+*/
+int BOW::loadVocabulary( std::string fileName )
+{
+	ifstream ifs( fileName.c_str() );
+	string buffer;
+	
+	int vocabSize;
+	int szWord;
+
+	//try to retrieve magic number
+	getline( ifs, buffer );
+	if( buffer != "26098677" )
+		return -1;
+		
+	//retrieve the number of words
+	getline( ifs, buffer );
+	if( buffer.size() != 0 )
+	{
+		vocabSize = atoi( buffer.c_str() );
+		this->setVocabSize( vocabSize );
+	}
+	else
+		return -1;
+
+	//retrieve word length
+	getline( ifs, buffer );
+	if( buffer.size() != 0 )
+		szWord = atoi( buffer.c_str() );
+
+	//Loop through |vocabSize| lines and retrieve codewords
+	_vocabulary.resize( vocabSize );
+	for( int i = 0; i < vocabSize; ++i )
+	{
+		_vocabulary[i].resize( szWord );
+		getline( ifs, buffer );
+		std::vector< std::string > tokenList = split( buffer, ';' );
+		if( tokenList.size() == szWord )
+		{
+			for( int j = 0; j < tokenList.size(); ++j )
+			{
+				_vocabulary[i][j] = atof( tokenList[j].c_str() );
+			}
+		}
+		else
+			return -1;
+	}
+
+	//Look for EOF marker
+	getline( ifs, buffer );
+	if( buffer != "77689062" )
+		return -1;
+
+	return 0;
 }
 
 #undef BOW

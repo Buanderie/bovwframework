@@ -30,8 +30,9 @@ class CBoVW
 
 		int _vocabSize;
 		static const int _maxClass = 10000;
-		std::vector< classtype_t > _classes;
-		std::vector< videntry_t > _videoEntry;
+		std::vector< classtype_t >			_classes;
+		std::vector< videntry_t >			_videoEntry;
+		std::vector< std::vector< float > > _vocabulary;
 
 		//k-Means stuff
 		double* _featurePool;
@@ -55,6 +56,12 @@ class CBoVW
 		void computeBoW();		
 
 		std::vector< videntry_t >& getVideoEntries();
+
+		/*
+		* I/O Functions
+		*/
+		void saveVocabulary( std::string fileName );
+		int loadVocabulary( std::string fileName );
 };
 
 #endif
