@@ -22,7 +22,7 @@ class STExtractor
 		void init();
 
 		void extractMovingFeatures( std::vector< cv::Mat > frames );
-		std::vector<STFeature> computeFeatures( std::vector< cv::Mat > frames );
+		std::vector<STFeature> computeFeatures( std::vector< cv::Mat > frames, bool showOutput );
 
 		double	_hessianThreshold;
 		int		_procUnitLength;
@@ -31,7 +31,7 @@ class STExtractor
 	public:
 		STExtractor( int procUnitLength=20, int intervalLength=2 );
 		virtual ~STExtractor();
-		std::vector<STFeature> extract( std::vector< cv::Mat > frames, int currentFrame );		
+		std::vector<STFeature> extract( std::vector< cv::Mat > frames, int currentFrame, bool showOutput );		
 };
 
 #endif

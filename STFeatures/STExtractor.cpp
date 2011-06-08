@@ -83,7 +83,7 @@ void EXT::extractMovingFeatures( std::vector< cv::Mat > frames )
 			{
 				Point2f diff(ofPointsNext[i].x - ofPointsPrev[i].x, ofPointsNext[i].y - ofPointsPrev[i].y );
 				float mov = sqrt( diff.x*diff.x + diff.y * diff.y );
-				if( mov >= 2.0f && mov < 25.0f )
+				if( mov >= 10.0f && mov < 50.0f )
 				{
 					cpt ++;
 					_goodKP.push_back( _movingKP[i] );
@@ -99,7 +99,7 @@ void EXT::extractMovingFeatures( std::vector< cv::Mat > frames )
 
 }
 
-std::vector<STFeature> EXT::computeFeatures( std::vector< cv::Mat > frames )
+std::vector<STFeature> EXT::computeFeatures( std::vector< cv::Mat > frames, bool showOutput )
 {
 	if( frames.size() != _procUnitLength )
 		frames.resize( _procUnitLength );
@@ -121,6 +121,9 @@ std::vector<STFeature> EXT::computeFeatures( std::vector< cv::Mat > frames )
 	//Extracting appearance features
 	cv::SURF surf(_hessianThreshold,4,2,false);
 	surf.operator()( frames[0], cv::Mat(), _goodKP, _movingDesc, true );
+	
+	//_movingDesc.resize( _goodKP.size() * 64 );
+
 	for( int i = 0; i < _goodKP.size(); ++i )
 	{
 		stFeat[i].getAppearanceFeature().resize( surf.descriptorSize() );
@@ -197,10 +200,13 @@ std::vector<STFeature> EXT::computeFeatures( std::vector< cv::Mat > frames )
 				else
 					tempMotionFeat[i*5 + 3] += abs(rot.y);
 
-				int radius = 10;
-				cv::circle( fbackout, ofPointsPrev[k], radius, CV_RGB(0,0,255), 1 );
-				float arclen = sqrt( rot.x*rot.x + rot.y*rot.y );
-				cv::line( fbackout, ofPointsPrev[k], Point2f( ofPointsPrev[k].x + radius * rot.x/arclen, ofPointsPrev[k].y + radius * rot.y/arclen ), CV_RGB(0,0,255), 1 );
+				if( showOutput )
+				{
+					int radius = 10;
+					cv::circle( fbackout, ofPointsPrev[k], radius, CV_RGB(0,0,255), 1 );
+					float arclen = sqrt( rot.x*rot.x + rot.y*rot.y );
+					cv::line( fbackout, ofPointsPrev[k], Point2f( ofPointsPrev[k].x + radius * rot.x/arclen, ofPointsPrev[k].y + radius * rot.y/arclen ), CV_RGB(0,0,255), 1 );
+				}
 			}
 			else
 			{
@@ -212,8 +218,11 @@ std::vector<STFeature> EXT::computeFeatures( std::vector< cv::Mat > frames )
 			stFeat[k].setMotionFeature( tempMotionFeat );
 		}
 
-		imshow("fback", fbackout);
-		cv::waitKey(5);
+		if( showOutput )
+		{
+			imshow("fback", fbackout);
+			cv::waitKey(5);
+		}
 	}
 
 	//Normalisation du vecteur 5d et aggregation
@@ -226,12 +235,12 @@ std::vector<STFeature> EXT::computeFeatures( std::vector< cv::Mat > frames )
 	return stFeat;
 }
 
-std::vector<STFeature> EXT::extract( std::vector< cv::Mat > frames, int currentFrame )
+std::vector<STFeature> EXT::extract( std::vector< cv::Mat > frames, int currentFrame, bool showOutput )
 {
 	vector< STFeature > features;
 	_currentFrame = currentFrame;
 	this->extractMovingFeatures( frames );
-	features = this->computeFeatures( frames );
+	features = this->computeFeatures( frames, showOutput );
 	return features;
 }
 

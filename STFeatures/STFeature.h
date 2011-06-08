@@ -35,6 +35,8 @@ class STFeature
 		void setIntervalLength( int M );
 		int getProcUnitLength();
 		int getIntervalLength();
+		
+		int getFeatureLength();
 };
 
 #endif

@@ -80,6 +80,7 @@
     <ClCompile Include="..\kmpp\KMeans.cpp" />
     <ClCompile Include="..\kmpp\KmTree.cpp" />
     <ClCompile Include="..\kmpp\KmUtils.cpp" />
+    <ClCompile Include="CBoVW.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="STExtractor.cpp" />
     <ClCompile Include="STFeature.cpp" />
@@ -88,6 +89,7 @@
     <ClInclude Include="..\kmpp\KMeans.h" />
     <ClInclude Include="..\kmpp\KmTree.h" />
     <ClInclude Include="..\kmpp\KmUtils.h" />
+    <ClInclude Include="CBoVW.h" />
     <ClInclude Include="STExtractor.h" />
     <ClInclude Include="STFeature.h" />
   </ItemGroup>
