@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "STFeature.h"
+#include "ISTExtractor.h"
 
 typedef struct classtype
 {
@@ -24,6 +25,7 @@ class CBoVW
 {
 	private:
 		void init();
+	
 		void computeVideoFeatures( std::string fileName, std::vector<STFeature>& featureVec );
 		void computeBoW( std::vector<STFeature>& features, std::vector< float >& output ); 
 		int featureVQ( STFeature& feat );
@@ -33,6 +35,7 @@ class CBoVW
 		std::vector< classtype_t >			_classes;
 		std::vector< videntry_t >			_videoEntry;
 		std::vector< std::vector< float > > _vocabulary;
+		ISTExtractor*	_extractor;
 
 		//k-Means stuff
 		double* _featurePool;
@@ -47,8 +50,9 @@ class CBoVW
 		int getVocabSize(){ return _vocabSize; }
 		void setVocabSize( int val ){ _vocabSize = val; }
 
-		classtype_t addClass( std::string className );
+		void setExtractor( ISTExtractor* extractor );
 
+		classtype_t addClass( std::string className );
 		void addVideo( std::string fileName, std::string className );
 
 		void computeFeatures();

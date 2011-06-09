@@ -1,6 +1,7 @@
 #include "CBoVW.h"
 #include "STFeature.h"
-#include "STExtractor.h"
+//#include "STExtractor.h"
+#include "ISTExtractor.h"
 #include "GenUtils.h"
 #include "CProfiler.h"
 #include "..\kmpp\KMeans.h"
@@ -19,11 +20,18 @@
 using namespace std;
 using namespace cv;
 
+
 void BOW::init()
 {
 	srand(time(NULL));
 	//_maxClass = 10000;
 	_vocabSize = 50;
+	_extractor = 0;
+}
+
+void BOW::setExtractor( ISTExtractor* extractor )
+{
+	_extractor = extractor;
 }
 
 BOW::BOW()
@@ -80,7 +88,6 @@ void BOW::computeVideoFeatures( std::string fileName, vector<STFeature>& feature
 	const int width = 320;
 	const int height = 240;
 
-	STExtractor ext( procUnitLen, intervalLen );
 	CProfiler prof;
 
 	//Open video
@@ -92,7 +99,7 @@ void BOW::computeVideoFeatures( std::string fileName, vector<STFeature>& feature
 
 	vector<STFeature> tempFeat;
 	vector<cv::Mat> frames;
-	deque<cv::Mat> frameQueue;
+	vector<cv::Mat> frameQueue;
 
 	int frameCpt = 0;
 	int nbFrameTotal = cap.get(CV_CAP_PROP_FRAME_COUNT);
@@ -138,7 +145,18 @@ void BOW::computeVideoFeatures( std::string fileName, vector<STFeature>& feature
 		{
 			prof.start();
 			tempFeat.clear();
-			tempFeat = ext.extract( frameQueue, frameCpt, false );
+
+			/*
+			* new architecture
+			*/
+				if( _extractor != 0 )
+				{
+					_extractor->computeFeatures( frameQueue, frameCpt );
+					tempFeat = _extractor->getFeatures();
+				}
+			/*
+			*/
+
 			featureVec.insert(featureVec.end(), tempFeat.begin(), tempFeat.end());
 			prof.stop();
 			frameQueue.clear();

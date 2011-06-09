@@ -84,7 +84,6 @@
     <ClCompile Include="CProfiler.cpp" />
     <ClCompile Include="GenUtils.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="STExtractor.cpp" />
     <ClCompile Include="STFeature.cpp" />
     <ClCompile Include="STIPExtractor.cpp" />
     <ClCompile Include="SURFSTExtractor.cpp" />
@@ -97,7 +96,6 @@
     <ClInclude Include="CProfiler.h" />
     <ClInclude Include="GenUtils.h" />
     <ClInclude Include="ISTExtractor.h" />
-    <ClInclude Include="STExtractor.h" />
     <ClInclude Include="STFeature.h" />
     <ClInclude Include="STIPExtractor.h" />
     <ClInclude Include="SURFSTExtractor.h" />
