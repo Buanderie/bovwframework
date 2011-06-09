@@ -5,11 +5,13 @@
 #include "GenUtils.h"
 #include "CProfiler.h"
 #include "..\kmpp\KMeans.h"
-#include <stdlib.h>
-#include <time.h>
 
+#include <vector>
+#include <string>
 #include <fstream>
-#include <deque>
+#include <iomanip>
+#include <cstdlib>
+#include <ctime>
 
 #include <opencv2\highgui\highgui.hpp>
 #include <opencv2\core\core.hpp>
@@ -84,6 +86,7 @@ void BOW::computeVideoFeatures( std::string fileName, vector<STFeature>& feature
 		if( frame.empty() )
 			break;
 
+		/*
 		double pos = cap.get( CV_CAP_PROP_POS_AVI_RATIO );
 		if( lastPercent != (int)(ceil(pos*100)) )
 		{
@@ -98,6 +101,7 @@ void BOW::computeVideoFeatures( std::string fileName, vector<STFeature>& feature
 			accFrameRate += lastFrameRate;
 			accFrameRateCpt++;
 		}
+		*/
 
 		cv::cvtColor( frame, frameg, CV_RGB2GRAY );
 		cv::resize( frameg, frameg2, cv::Size(width,height));
@@ -201,9 +205,23 @@ int BOW::featureVQ( STFeature& feat )
 
 void BOW::computeFeatures( CVideoPool& corpus )
 {
+	CProfiler prof;
 	//For each video entry...
-	for( int i = 0; i < corpus.getVideoEntries().size(); ++i )
+	cout << "####### BoVW - Computing Features #######" << endl;
+	double progress = 0;
+	const int corpusSize = corpus.getVideoEntries().size();
+	
+	double accProcTime = 0;
+	double ETA = 0;
+	int ETAs;
+	int resteETAs;
+	int ETAm;
+	int resteETAm;
+	int ETAh;
+
+	for( int i = 0; i < corpusSize; ++i )
 	{
+		prof.start();
 		//Compute features for one video
 		vector<STFeature> entryFeatures;
 		computeVideoFeatures( corpus.getVideoEntries()[i].getFileName(), entryFeatures );
@@ -214,7 +232,22 @@ void BOW::computeFeatures( CVideoPool& corpus )
 		}
 		//
 		corpus.getVideoEntries()[i].setFeatures( entryFeatures );
+		prof.stop();
+		accProcTime += prof.getSeconds();
+		ETA = (accProcTime/((double)(i+1)))*((double)corpusSize);
+		ETAs = (int)ETA;
+		resteETAs = ETAs%60;
+		ETAm = ETAs / 60;
+		resteETAm = ETAm%60;
+		ETAh = ETAm/60;
+
+		progress = ((double)i / (double)( corpusSize ))*100.0;
+		cout	<< "## Feature Computation Progress - "
+				<< i+1 << "/" << corpusSize << " - " 
+				<< fixed << setprecision(2) << progress << "%" 
+				<< " - " << "ETA=" << ETAh << "h" << resteETAm << "m" << resteETAs << "s" << endl;
 	}
+	cout << "####### Done #######" << endl;
 }
 
 /*

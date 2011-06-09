@@ -28,6 +28,7 @@ std::vector< std::string > POOL::getClassList()
 	// Naive O(n^2) algorithm... No big deal 
 	for( int i = 0; i < _videoEntries.size(); ++i )
 	{
+		toAdd = true;
 		sName = _videoEntries[i].getClassName();
 		for( int j = 0; j < returnList.size(); ++j )
 		{

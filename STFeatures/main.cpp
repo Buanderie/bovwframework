@@ -26,13 +26,16 @@ int main( int argc, char** argv )
 	*/
 	CVideoPool pool;
 	pool.addVideoEntry( CVideoEntry("Z:\\HumanDetection\\videos_hbd\\6pc0m.avi", "class1") );
+	for( int i = 0; i < 100; ++i )
+		pool.addVideoEntry( CVideoEntry("Z:\\HumanDetection\\videos_hbd\\6pc0m.avi", "class1") );
 	pool.addVideoEntry( CVideoEntry("Z:\\HumanDetection\\videos_hbd\\accidentm.avi", "class1") );
-	pool.addVideoEntry(  CVideoEntry("Z:\\HumanDetection\\videos_hbd\\6pc0w.avi", "class1") );
+	pool.addVideoEntry(  CVideoEntry("Z:\\HumanDetection\\videos_hbd\\6pc0w.avi", "class2") );
+	vector<string> classes = pool.getClassList();
 
 	CBoVW* bow = new CBoVW();
 	SURFSTExtractor* extractor = new SURFSTExtractor();
 	bow->setExtractor( extractor );
-	bow->setVocabSize( 25 );
+	bow->setVocabSize( 250 );
 	
 	bow->computeFeatures( pool );
 	bow->buildVocabulary( pool );
