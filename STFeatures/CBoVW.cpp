@@ -255,7 +255,7 @@ void BOW::computeVocabulary()
 	//
 	// 0 - Compute required memory space
 	int szFeaturePool = 0;
-	int szWord = _videoEntry[0]._features[0].getAggregatedFeature().size();
+	int szWord = _extractor->getFeatureLength();
 	int nFeatures = 0;
 	for (int i = 0; i < _videoEntry.size(); ++i )
 	{
@@ -331,7 +331,7 @@ std::vector< videntry_t >& BOW::getVideoEntries()
 void BOW::saveVocabulary( std::string fileName )
 {
 	ofstream ofs( fileName.c_str() );
-	int szWord = _vocabulary[0].size();
+	int szWord = _extractor->getFeatureLength();
 
 	//Write Magic Number
 	ofs << "26098677" << endl;

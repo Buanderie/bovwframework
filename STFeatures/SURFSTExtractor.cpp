@@ -28,7 +28,7 @@ SURFST::~SURFSTExtractor()
 
 int SURFST::getFeatureLength()
 {
-	return 0;
+	return (64 + ( _procUnitLength / _intervalLength )*5);
 }
 
 int	SURFST::computeFeatures( std::vector< cv::Mat > frames, int framePos )
