@@ -4,6 +4,7 @@
 #include <opencv2\core\core.hpp>
 #include <opencv2\imgproc\imgproc.hpp>
 
+#include <deque>
 #include <iostream>
 #include <cmath>
 
@@ -28,7 +29,7 @@ void EXT::init()
 {
 	//A definir...
 	//Dépend de la densité des points
-	_hessianThreshold = 200;
+	_hessianThreshold = 800;
 }
 
 Point2f rotateOFVector( Point2f iVec, float theta )
@@ -40,7 +41,7 @@ Point2f rotateOFVector( Point2f iVec, float theta )
 	return Point2f( x0, y0 );
 }
 
-void EXT::extractMovingFeatures( std::vector< cv::Mat > frames )
+void EXT::extractMovingFeatures( std::deque< cv::Mat > frames )
 {
 	_movingKP.clear();
 	_movingDesc.clear();
@@ -99,7 +100,7 @@ void EXT::extractMovingFeatures( std::vector< cv::Mat > frames )
 
 }
 
-std::vector<STFeature> EXT::computeFeatures( std::vector< cv::Mat > frames, bool showOutput )
+std::vector<STFeature> EXT::computeFeatures( std::deque< cv::Mat > frames, bool showOutput )
 {
 	if( frames.size() != _procUnitLength )
 		frames.resize( _procUnitLength );
@@ -235,12 +236,12 @@ std::vector<STFeature> EXT::computeFeatures( std::vector< cv::Mat > frames, bool
 	return stFeat;
 }
 
-std::vector<STFeature> EXT::extract( std::vector< cv::Mat > frames, int currentFrame, bool showOutput )
+std::vector<STFeature> EXT::extract( std::deque< cv::Mat > frameQueue, int currentFrame, bool showOutput )
 {
 	vector< STFeature > features;
 	_currentFrame = currentFrame;
-	this->extractMovingFeatures( frames );
-	features = this->computeFeatures( frames, showOutput );
+	this->extractMovingFeatures( frameQueue );
+	features = this->computeFeatures( frameQueue, showOutput );
 	return features;
 }
 

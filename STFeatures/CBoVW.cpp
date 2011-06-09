@@ -2,11 +2,13 @@
 #include "STFeature.h"
 #include "STExtractor.h"
 #include "GenUtils.h"
+#include "CProfiler.h"
 #include "..\kmpp\KMeans.h"
 #include <stdlib.h>
 #include <time.h>
 
 #include <fstream>
+#include <deque>
 
 #include <opencv2\highgui\highgui.hpp>
 #include <opencv2\core\core.hpp>
@@ -79,22 +81,32 @@ void BOW::computeVideoFeatures( std::string fileName, vector<STFeature>& feature
 	const int height = 240;
 
 	STExtractor ext( procUnitLen, intervalLen );
-	
+	CProfiler prof;
+
 	//Open video
 	VideoCapture cap( fileName );
 	Mat frame;
 	Mat frameg;
 	Mat frameg2;
 	Mat hardCopy;
+
 	vector<STFeature> tempFeat;
 	vector<cv::Mat> frames;
+	deque<cv::Mat> frameQueue;
+
 	int frameCpt = 0;
+	int nbFrameTotal = cap.get(CV_CAP_PROP_FRAME_COUNT);
 
 	featureVec.clear();
+	featureVec.reserve( 10000 );
 
 	cout << "Processing " << fileName << "..." << endl;
-	
+	cout << "Total number of frames: " << nbFrameTotal << endl;
+
 	int lastPercent = 0;
+	double lastFrameRate = 0;
+	double accFrameRate = 0;
+	int accFrameRateCpt = 0;
 
 	for(;;)
 	{
@@ -105,27 +117,36 @@ void BOW::computeVideoFeatures( std::string fileName, vector<STFeature>& feature
 		double pos = cap.get( CV_CAP_PROP_POS_AVI_RATIO );
 		if( lastPercent != (int)(ceil(pos*100)) )
 		{
+			double meanFrameRate = accFrameRate/(double)accFrameRateCpt;
+			accFrameRate = 0;
+			accFrameRateCpt = 0;
 			lastPercent = (int)(ceil(pos*100));
-			cout << lastPercent << "%" << endl;
+			cout << lastPercent << "%" << " - " << meanFrameRate << " fps" << endl;
+		}
+		else
+		{
+			accFrameRate += lastFrameRate;
+			accFrameRateCpt++;
 		}
 
 		cv::cvtColor( frame, frameg, CV_RGB2GRAY );
 		cv::resize( frameg, frameg2, cv::Size(width,height));
 		hardCopy = frameg2.clone();
-		frames.push_back( hardCopy );
-		
+
 		//we reached processing unit length
-		if( frames.size() == procUnitLen )
+		if( frameQueue.size() == procUnitLen )
 		{
+			prof.start();
 			tempFeat.clear();
-			tempFeat = ext.extract( frames, frameCpt, false );
-
-			//append extracted features
+			tempFeat = ext.extract( frameQueue, frameCpt, false );
 			featureVec.insert(featureVec.end(), tempFeat.begin(), tempFeat.end());
-
-			frames.clear();
+			prof.stop();
+			frameQueue.clear();
+			lastFrameRate = 1.0/prof.getSeconds();
 		}
-
+		frameQueue.push_back( hardCopy );
+		//
+		
 		frameCpt++;
 	}
 	cout << "Done!" << endl;

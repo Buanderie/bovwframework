@@ -25,7 +25,7 @@ int main( int argc, char** argv )
 
 	CBoVW bow;
 
-	bow.setVocabSize( 100 );
+	bow.setVocabSize( 50 );
 	bow.addClass( "class1" );
 	bow.addVideo( "Z:\\HumanDetection\\videos_hbd\\6pc0m.avi", "class1" );
 	bow.addVideo( "Z:\\HumanDetection\\videos_hbd\\6pc0w.avi", "class1" );

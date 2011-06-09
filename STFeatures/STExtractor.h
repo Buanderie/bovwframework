@@ -4,6 +4,7 @@
 #include "STFeature.h"
 
 #include <vector>
+#include <deque>
 #include <opencv2\core\core.hpp>
 #include <opencv2\features2d\features2d.hpp>
 
@@ -21,8 +22,8 @@ class STExtractor
 
 		void init();
 
-		void extractMovingFeatures( std::vector< cv::Mat > frames );
-		std::vector<STFeature> computeFeatures( std::vector< cv::Mat > frames, bool showOutput );
+		void extractMovingFeatures( std::deque< cv::Mat > frames );
+		std::vector<STFeature> computeFeatures( std::deque< cv::Mat > frames, bool showOutput );
 
 		double	_hessianThreshold;
 		int		_procUnitLength;
@@ -31,7 +32,7 @@ class STExtractor
 	public:
 		STExtractor( int procUnitLength=20, int intervalLength=2 );
 		virtual ~STExtractor();
-		std::vector<STFeature> extract( std::vector< cv::Mat > frames, int currentFrame, bool showOutput );		
+		std::vector<STFeature> extract( std::deque< cv::Mat > frames, int currentFrame, bool showOutput );		
 };
 
 #endif
