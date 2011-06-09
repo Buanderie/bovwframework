@@ -80,6 +80,7 @@
     <ClCompile Include="..\kmpp\KMeans.cpp" />
     <ClCompile Include="..\kmpp\KmTree.cpp" />
     <ClCompile Include="..\kmpp\KmUtils.cpp" />
+    <ClCompile Include="ANNClassifier.cpp" />
     <ClCompile Include="CBoVW.cpp" />
     <ClCompile Include="CProfiler.cpp" />
     <ClCompile Include="GenUtils.cpp" />
@@ -87,18 +88,24 @@
     <ClCompile Include="STFeature.cpp" />
     <ClCompile Include="STIPExtractor.cpp" />
     <ClCompile Include="SURFSTExtractor.cpp" />
+    <ClCompile Include="VideoEntry.cpp" />
+    <ClCompile Include="VideoPool.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\kmpp\KMeans.h" />
     <ClInclude Include="..\kmpp\KmTree.h" />
     <ClInclude Include="..\kmpp\KmUtils.h" />
+    <ClInclude Include="ANNClassifier.h" />
     <ClInclude Include="CBoVW.h" />
     <ClInclude Include="CProfiler.h" />
     <ClInclude Include="GenUtils.h" />
+    <ClInclude Include="IClassifier.h" />
     <ClInclude Include="ISTExtractor.h" />
     <ClInclude Include="STFeature.h" />
     <ClInclude Include="STIPExtractor.h" />
     <ClInclude Include="SURFSTExtractor.h" />
+    <ClInclude Include="VideoEntry.h" />
+    <ClInclude Include="VideoPool.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

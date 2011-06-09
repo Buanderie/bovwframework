@@ -3,6 +3,7 @@
 #include <iomanip>
 
 #include "CBoVW.h"
+#include "VideoPool.h"
 #include "SURFSTExtractor.h"
 #include "GenUtils.h"
 
@@ -23,24 +24,29 @@ int main( int argc, char** argv )
 		return -1;
 	}
 	*/
+	CVideoPool pool;
+	pool.addVideoEntry( CVideoEntry("Z:\\HumanDetection\\videos_hbd\\6pc0m.avi", "class1") );
+	pool.addVideoEntry( CVideoEntry("Z:\\HumanDetection\\videos_hbd\\accidentm.avi", "class1") );
+	pool.addVideoEntry(  CVideoEntry("Z:\\HumanDetection\\videos_hbd\\6pc0w.avi", "class1") );
 
 	CBoVW* bow = new CBoVW();
 	SURFSTExtractor* extractor = new SURFSTExtractor();
 	bow->setExtractor( extractor );
-
-	bow->setVocabSize( 50 );
-	bow->addClass( "class1" );
-	bow->addVideo( "Z:\\HumanDetection\\videos_hbd\\6pc0m.avi", "class1" );
-	bow->addVideo( "Z:\\HumanDetection\\videos_hbd\\6pc0w.avi", "class1" );
+	bow->setVocabSize( 25 );
 	
-	bow->computeFeatures();
-	bow->computeVocabulary();
-	bow->computeBoW();
+	bow->computeFeatures( pool );
+	bow->buildVocabulary( pool );
+	bow->computeBoW( pool );
 
-	vector< videntry_t > entryList = bow->getVideoEntries();
+	vector<CVideoEntry> entries = pool.getVideoEntries();
+	float histoDistA = computeBhattacharyya( entries[0].getBoWVector(), entries[1].getBoWVector() );
+	float histoDistB = computeBhattacharyya( entries[1].getBoWVector(), entries[2].getBoWVector() );
+	float histoDistC = computeBhattacharyya( entries[0].getBoWVector(), entries[2].getBoWVector() );
+	float histoDistD = computeBhattacharyya( entries[0].getBoWVector(), entries[0].getBoWVector() );
+	float histoDistE = computeBhattacharyya( entries[1].getBoWVector(), entries[1].getBoWVector() );
+	float histoDistF = computeBhattacharyya( entries[2].getBoWVector(), entries[2].getBoWVector() );
 
-	float histoDist = computeBhattacharyya( entryList[0]._bag, entryList[1]._bag );
-	cout << "Bhattacharyya coefficient = " << histoDist << endl;
+	//cout << "Bhattacharyya coefficient = " << histoDist << endl;
 
 	delete extractor;
 	delete bow;

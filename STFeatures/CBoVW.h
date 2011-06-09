@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "STFeature.h"
+#include "VideoPool.h"
 #include "ISTExtractor.h"
 
 typedef struct classtype
@@ -55,9 +56,9 @@ class CBoVW
 		classtype_t addClass( std::string className );
 		void addVideo( std::string fileName, std::string className );
 
-		void computeFeatures();
-		void computeVocabulary();
-		void computeBoW();		
+		void computeFeatures( CVideoPool& corpus );
+		void buildVocabulary( CVideoPool& corpus );
+		void computeBoW( CVideoPool& corpus );		
 
 		std::vector< videntry_t >& getVideoEntries();
 

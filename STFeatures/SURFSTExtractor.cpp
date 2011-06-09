@@ -239,12 +239,6 @@ void SURFST::computeFeatures( std::vector< cv::Mat > frames )
 			_features[k].setMotionFeature( tempMotionFeat );
 		}
 	}
-
-	//Normalisation du vecteur 5d et aggregation
-	for( int i = 0; i < _features.size(); ++i )
-	{
-		_features[i].normalizeMotionFeature();
-	}
 }
 
 #undef SURFST

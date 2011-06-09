@@ -27,9 +27,11 @@ class STFeature
 		std::vector< float >& getMotionFeature();
 		std::vector< float >& getAppearanceFeature();
 		std::vector< float >  getAggregatedFeature();
+		
+		void normalizeMotionFeature();
+
 		std::vector< cv::Point2f >& getMotionTrack();
 		std::vector< float >& getTimeStamps();
-		void normalizeMotionFeature();
 
 		void setProcUnitLength( int N );
 		void setIntervalLength( int M );

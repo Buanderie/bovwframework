@@ -1,6 +1,6 @@
 #include "CBoVW.h"
 #include "STFeature.h"
-//#include "STExtractor.h"
+#include "VideoPool.h"
 #include "ISTExtractor.h"
 #include "GenUtils.h"
 #include "CProfiler.h"
@@ -42,43 +42,6 @@ BOW::BOW()
 BOW::~BOW()
 {
 
-}
-
-classtype_t BOW::addClass( std::string className )
-{
-	bool alreadyThere = false;
-	int idx = 0;
-	//Look for existing class
-	for( int i = 0; i < _classes.size(); ++i )
-	{
-		if( _classes[i].className == className )
-		{
-			alreadyThere = true;
-			idx = i;
-			break;
-		}
-	}
-
-	if( alreadyThere )
-	{
-		return _classes[idx];
-	}
-	else
-	{
-		classtype_t clt;
-		clt.classId = rand()%_maxClass;
-		clt.className = className;
-		_classes.push_back( clt );
-		return clt;
-	}
-}
-
-void BOW::addVideo( std::string fileName, std::string className )
-{
-	videntry_t vident;
-	vident.className = className;
-	vident.videoFileName = fileName;
-	_videoEntry.push_back( vident );
 }
 
 void BOW::computeVideoFeatures( std::string fileName, vector<STFeature>& featureVec )
@@ -147,7 +110,7 @@ void BOW::computeVideoFeatures( std::string fileName, vector<STFeature>& feature
 			tempFeat.clear();
 
 			/*
-			* new architecture
+			* new arch
 			*/
 				if( _extractor != 0 )
 				{
@@ -236,20 +199,32 @@ int BOW::featureVQ( STFeature& feat )
 	return min_idx;
 }
 
-void BOW::computeFeatures()
+void BOW::computeFeatures( CVideoPool& corpus )
 {
 	//For each video entry...
-	for( int i = 0; i < _videoEntry.size(); ++i )
+	for( int i = 0; i < corpus.getVideoEntries().size(); ++i )
 	{
 		//Compute features for one video
-		computeVideoFeatures( _videoEntry[i].videoFileName, _videoEntry[i]._features );
+		vector<STFeature> entryFeatures;
+		computeVideoFeatures( corpus.getVideoEntries()[i].getFileName(), entryFeatures );
+		//Normalize motion features
+		for( int i = 0; i < entryFeatures.size(); ++i )
+		{
+			entryFeatures[i].normalizeMotionFeature();
+		}
+		//
+		corpus.getVideoEntries()[i].setFeatures( entryFeatures );
 	}
 }
 
-void BOW::computeVocabulary()
+/*
+*	Build Video Vocabulary from Video Corpus
+*/
+void BOW::buildVocabulary( CVideoPool& corpus )
 {
-	if( _videoEntry.size() <= 0 )
+	if( corpus.getVideoEntries().size() <= 0 )
 		return;
+	//
 
 	//Use kMeans clustering to build vocabulary
 	//
@@ -257,9 +232,9 @@ void BOW::computeVocabulary()
 	int szFeaturePool = 0;
 	int szWord = _extractor->getFeatureLength();
 	int nFeatures = 0;
-	for (int i = 0; i < _videoEntry.size(); ++i )
+	for (int i = 0; i < corpus.getVideoEntries().size(); ++i )
 	{
-		int nFeat = _videoEntry[i]._features.size();
+		int nFeat = corpus.getVideoEntries()[i].getFeatures().size();
 		szFeaturePool += (nFeat * szWord);
 		nFeatures += nFeat;
 	}
@@ -269,12 +244,12 @@ void BOW::computeVocabulary()
 	//Copy feature data
 	//For each video
 	int arrayOffset = 0;
-	for( int i = 0; i < _videoEntry.size(); ++i )
+	for( int i = 0; i < corpus.getVideoEntries().size(); ++i )
 	{
 		//for each computed feature
-		for( int j = 0; j < _videoEntry[i]._features.size(); ++j )
+		for( int j = 0; j < corpus.getVideoEntries()[i].getFeatures().size(); ++j )
 		{
-			vector<float> feat = _videoEntry[i]._features[j].getAggregatedFeature();
+			vector<float> feat = corpus.getVideoEntries()[i].getFeatures()[j].getAggregatedFeature();
 			//For each feature element
 			for (int k = 0; k < feat.size(); ++k )
 			{
@@ -312,11 +287,11 @@ void BOW::computeVocabulary()
 	_featurePool = 0;
 }
 
-void BOW::computeBoW()
+void BOW::computeBoW( CVideoPool& corpus )
 {
-	for( int i = 0; i < _videoEntry.size(); ++i )
+	for( int i = 0; i < corpus.getVideoEntries().size(); ++i )
 	{
-		computeBoW( _videoEntry[i]._features, _videoEntry[i]._bag );
+		computeBoW( corpus.getVideoEntries()[i].getFeatures(), corpus.getVideoEntries()[i].getBoWVector() );
 	}
 }
 
