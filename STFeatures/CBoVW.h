@@ -7,20 +7,7 @@
 #include "STFeature.h"
 #include "VideoPool.h"
 #include "ISTExtractor.h"
-
-typedef struct classtype
-{
-	int			classId;
-	std::string className;
-} classtype_t;
-
-typedef struct videntry
-{
-	std::string videoFileName;
-	std::string className;
-	std::vector< STFeature > _features;
-	std::vector< float > _bag;
-} videntry_t;
+#include "IClassifier.h"
 
 class CBoVW
 {
@@ -32,11 +19,10 @@ class CBoVW
 		int featureVQ( STFeature& feat );
 
 		int _vocabSize;
-		static const int _maxClass = 10000;
-		std::vector< classtype_t >			_classes;
-		std::vector< videntry_t >			_videoEntry;
 		std::vector< std::vector< float > > _vocabulary;
 		ISTExtractor*	_extractor;
+		IClassifier*	_classifier;
+		CVideoPool*		_videoPool;
 
 		//k-Means stuff
 		double* _featurePool;
@@ -52,19 +38,29 @@ class CBoVW
 		void setVocabSize( int val ){ _vocabSize = val; }
 
 		void setExtractor( ISTExtractor* extractor );
+		void setClassifier( IClassifier* classifier );
+		void setVideoPool( CVideoPool* videoPool );
 
-		classtype_t addClass( std::string className );
-		void addVideo( std::string fileName, std::string className );
+		/*
+		* Classification
+		*/
+		void createClassificationModel();
+		void label( std::vector< cv::Mat > frames );
+		void label( std::vector< float > bowValues );
+		void label( std::string videoName );
 
-		void computeFeatures( CVideoPool& corpus );
-		void buildVocabulary( CVideoPool& corpus );
-		void computeBoW( CVideoPool& corpus );		
-
-		std::vector< videntry_t >& getVideoEntries();
+		/*
+		* BoW Computation
+		*/
+		void computeFeatures();
+		void buildVocabulary();
+		void computeBoW();		
 
 		/*
 		* I/O Functions
 		*/
+		void saveClassificationModel( std::string fileName );
+		void loadClassificationModel( std::string fileName );
 		void saveVocabulary( std::string fileName );
 		int loadVocabulary( std::string fileName );
 };

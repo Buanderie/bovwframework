@@ -26,14 +26,25 @@ using namespace cv;
 void BOW::init()
 {
 	srand(time(NULL));
-	//_maxClass = 10000;
 	_vocabSize = 50;
 	_extractor = 0;
+	_classifier = 0;
+	_videoPool = 0;
 }
 
 void BOW::setExtractor( ISTExtractor* extractor )
 {
 	_extractor = extractor;
+}
+
+void BOW::setClassifier( IClassifier* classifier )
+{
+	_classifier = classifier;
+}
+
+void BOW::setVideoPool( CVideoPool* videoPool )
+{
+	_videoPool = videoPool;
 }
 
 BOW::BOW()
@@ -203,13 +214,16 @@ int BOW::featureVQ( STFeature& feat )
 	return min_idx;
 }
 
-void BOW::computeFeatures( CVideoPool& corpus )
+void BOW::computeFeatures()
 {
+	if( _videoPool == 0 )
+		return;
+
 	CProfiler prof;
 	//For each video entry...
-	cout << "####### BoVW - Computing Features #######" << endl;
+	std::cout << "####### BoVW - Computing Features #######" << endl;
 	double progress = 0;
-	const int corpusSize = corpus.getVideoEntries().size();
+	const int corpusSize = _videoPool->getVideoEntries().size();
 	
 	double accProcTime = 0;
 	double ETA = 0;
@@ -224,14 +238,14 @@ void BOW::computeFeatures( CVideoPool& corpus )
 		prof.start();
 		//Compute features for one video
 		vector<STFeature> entryFeatures;
-		computeVideoFeatures( corpus.getVideoEntries()[i].getFileName(), entryFeatures );
+		computeVideoFeatures( _videoPool->getVideoEntries()[i].getFileName(), entryFeatures );
 		//Normalize motion features
 		for( int i = 0; i < entryFeatures.size(); ++i )
 		{
 			entryFeatures[i].normalizeMotionFeature();
 		}
 		//
-		corpus.getVideoEntries()[i].setFeatures( entryFeatures );
+		_videoPool->getVideoEntries()[i].setFeatures( entryFeatures );
 		prof.stop();
 		accProcTime += prof.getSeconds();
 		ETA = (accProcTime/((double)(i+1)))*((double)corpusSize);
@@ -242,20 +256,23 @@ void BOW::computeFeatures( CVideoPool& corpus )
 		ETAh = ETAm/60;
 
 		progress = ((double)i / (double)( corpusSize ))*100.0;
-		cout	<< "## Feature Computation Progress - "
+		std::cout	<< "## Feature Computation Progress - "
 				<< i+1 << "/" << corpusSize << " - " 
 				<< fixed << setprecision(2) << progress << "%" 
 				<< " - " << "ETA=" << ETAh << "h" << resteETAm << "m" << resteETAs << "s" << endl;
 	}
-	cout << "####### Done #######" << endl;
+	std::cout << "####### Done #######" << endl;
 }
 
 /*
 *	Build Video Vocabulary from Video Corpus
 */
-void BOW::buildVocabulary( CVideoPool& corpus )
+void BOW::buildVocabulary()
 {
-	if( corpus.getVideoEntries().size() <= 0 )
+	if( _videoPool == 0 )
+		return;
+	
+	if( _videoPool->getVideoEntries().size() <= 0 )
 		return;
 	//
 
@@ -265,9 +282,9 @@ void BOW::buildVocabulary( CVideoPool& corpus )
 	int szFeaturePool = 0;
 	int szWord = _extractor->getFeatureLength();
 	int nFeatures = 0;
-	for (int i = 0; i < corpus.getVideoEntries().size(); ++i )
+	for (int i = 0; i < _videoPool->getVideoEntries().size(); ++i )
 	{
-		int nFeat = corpus.getVideoEntries()[i].getFeatures().size();
+		int nFeat = _videoPool->getVideoEntries()[i].getFeatures().size();
 		szFeaturePool += (nFeat * szWord);
 		nFeatures += nFeat;
 	}
@@ -277,12 +294,12 @@ void BOW::buildVocabulary( CVideoPool& corpus )
 	//Copy feature data
 	//For each video
 	int arrayOffset = 0;
-	for( int i = 0; i < corpus.getVideoEntries().size(); ++i )
+	for( int i = 0; i < _videoPool->getVideoEntries().size(); ++i )
 	{
 		//for each computed feature
-		for( int j = 0; j < corpus.getVideoEntries()[i].getFeatures().size(); ++j )
+		for( int j = 0; j < _videoPool->getVideoEntries()[i].getFeatures().size(); ++j )
 		{
-			vector<float> feat = corpus.getVideoEntries()[i].getFeatures()[j].getAggregatedFeature();
+			vector<float> feat = _videoPool->getVideoEntries()[i].getFeatures()[j].getAggregatedFeature();
 			//For each feature element
 			for (int k = 0; k < feat.size(); ++k )
 			{
@@ -320,17 +337,15 @@ void BOW::buildVocabulary( CVideoPool& corpus )
 	_featurePool = 0;
 }
 
-void BOW::computeBoW( CVideoPool& corpus )
+void BOW::computeBoW()
 {
-	for( int i = 0; i < corpus.getVideoEntries().size(); ++i )
-	{
-		computeBoW( corpus.getVideoEntries()[i].getFeatures(), corpus.getVideoEntries()[i].getBoWVector() );
-	}
-}
+	if( _videoPool == 0 )
+		return;
 
-std::vector< videntry_t >& BOW::getVideoEntries()
-{
-	return this->_videoEntry;
+	for( int i = 0; i < _videoPool->getVideoEntries().size(); ++i )
+	{
+		computeBoW( _videoPool->getVideoEntries()[i].getFeatures(), _videoPool->getVideoEntries()[i].getBoWVector() );
+	}
 }
 
 /*
@@ -419,6 +434,30 @@ int BOW::loadVocabulary( std::string fileName )
 		return -1;
 
 	return 0;
+}
+
+/*
+* Classification
+*/
+void BOW::createClassificationModel()
+{
+	if( _classifier != 0 )
+		_classifier->createModel( this->_videoPool, this );
+}
+
+void BOW::label( std::vector< cv::Mat > frames )
+{
+
+}
+
+void BOW::label( std::vector< float > bowValues )
+{
+
+}
+
+void BOW::label( std::string videoName )
+{
+
 }
 
 #undef BOW

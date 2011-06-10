@@ -5,6 +5,8 @@
 #include "CBoVW.h"
 #include "VideoPool.h"
 #include "SURFSTExtractor.h"
+#include "IClassifier.h"
+#include "ANNClassifier.h"
 #include "GenUtils.h"
 
 using namespace cv;
@@ -24,33 +26,30 @@ int main( int argc, char** argv )
 		return -1;
 	}
 	*/
-	CVideoPool pool;
-	pool.addVideoEntry( CVideoEntry("Z:\\HumanDetection\\videos_hbd\\6pc0m.avi", "class1") );
-	for( int i = 0; i < 100; ++i )
-		pool.addVideoEntry( CVideoEntry("Z:\\HumanDetection\\videos_hbd\\6pc0m.avi", "class1") );
-	pool.addVideoEntry( CVideoEntry("Z:\\HumanDetection\\videos_hbd\\accidentm.avi", "class1") );
-	pool.addVideoEntry(  CVideoEntry("Z:\\HumanDetection\\videos_hbd\\6pc0w.avi", "class2") );
-	vector<string> classes = pool.getClassList();
+	CVideoPool* pool = new CVideoPool();
+	pool->addVideoEntry( CVideoEntry("Z:\\HumanDetection\\videos_hbd\\6pc0m.avi", "class1") );
+	pool->addVideoEntry(  CVideoEntry("Z:\\HumanDetection\\videos_hbd\\6pc0w.avi", "class2") );
+	pool->addVideoEntry( CVideoEntry("Z:\\HumanDetection\\videos_hbd\\6pc0m.avi", "class1") );
+	pool->addVideoEntry(  CVideoEntry("Z:\\HumanDetection\\videos_hbd\\6pc0w.avi", "class2") );
+
+	
+	SURFSTExtractor* extractor = new SURFSTExtractor();
+	CANNClassifier* classifier = new CANNClassifier();
 
 	CBoVW* bow = new CBoVW();
-	SURFSTExtractor* extractor = new SURFSTExtractor();
 	bow->setExtractor( extractor );
-	bow->setVocabSize( 250 );
+	bow->setClassifier( classifier );
+	bow->setVideoPool( pool );
+	bow->setVocabSize( 50 );
 	
-	bow->computeFeatures( pool );
-	bow->buildVocabulary( pool );
-	bow->computeBoW( pool );
+	bow->computeFeatures();
+	bow->buildVocabulary();
+	bow->computeBoW();
 
-	vector<CVideoEntry> entries = pool.getVideoEntries();
-	float histoDistA = computeBhattacharyya( entries[0].getBoWVector(), entries[1].getBoWVector() );
-	float histoDistB = computeBhattacharyya( entries[1].getBoWVector(), entries[2].getBoWVector() );
-	float histoDistC = computeBhattacharyya( entries[0].getBoWVector(), entries[2].getBoWVector() );
-	float histoDistD = computeBhattacharyya( entries[0].getBoWVector(), entries[0].getBoWVector() );
-	float histoDistE = computeBhattacharyya( entries[1].getBoWVector(), entries[1].getBoWVector() );
-	float histoDistF = computeBhattacharyya( entries[2].getBoWVector(), entries[2].getBoWVector() );
+	bow->createClassificationModel();
 
-	//cout << "Bhattacharyya coefficient = " << histoDist << endl;
-
+	delete classifier;
+	delete pool;
 	delete extractor;
 	delete bow;
 
