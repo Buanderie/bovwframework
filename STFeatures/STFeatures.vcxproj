@@ -85,6 +85,7 @@
     <ClCompile Include="CBoVW.cpp" />
     <ClCompile Include="CProfiler.cpp" />
     <ClCompile Include="GenUtils.cpp" />
+    <ClCompile Include="LogMgr.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="STFeature.cpp" />
     <ClCompile Include="STIPExtractor.cpp" />
@@ -102,6 +103,8 @@
     <ClInclude Include="GenUtils.h" />
     <ClInclude Include="IClassifier.h" />
     <ClInclude Include="ISTExtractor.h" />
+    <ClInclude Include="LogMgr.h" />
+    <ClInclude Include="Singleton.h" />
     <ClInclude Include="STFeature.h" />
     <ClInclude Include="STIPExtractor.h" />
     <ClInclude Include="SURFSTExtractor.h" />

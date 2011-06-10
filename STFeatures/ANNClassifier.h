@@ -24,7 +24,7 @@ class CANNClassifier : public IClassifier
 		virtual void createModel( CVideoPool* pool, CBoVW* bow );
 		virtual void saveModel( std::string fileName );
 		virtual void loadModel( std::string fileName );
-		virtual std::string label( std::vector<float> bowVector );
+		virtual std::string label( std::vector<float> bowVector, CVideoPool* pool, CBoVW* bow, std::vector<float>& truthValues );
 };
 
 #endif

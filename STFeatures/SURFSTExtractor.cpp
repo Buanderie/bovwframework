@@ -33,10 +33,25 @@ int SURFST::getFeatureLength()
 
 int	SURFST::computeFeatures( std::vector< cv::Mat > frames, int framePos )
 {
-	vector< STFeature > features;
 	_currentFramePos = framePos;
-	extractMovingFeatures( frames );
-	this->computeFeatures( frames );
+
+	while( 1 )
+	{
+		//While we still have enough frames to compute
+		if( frames.size() < _procUnitLength )
+			break;
+
+		vector<cv::Mat> subset;
+		subset.resize( _procUnitLength );
+		copy( frames.begin(), frames.begin() + 20, subset.begin() );
+		
+		extractMovingFeatures( subset );
+		this->computeFeatures( subset );
+
+		frames.erase( frames.begin(), frames.begin() + 20 );
+
+	}
+
 	return 0;
 }
 
@@ -80,7 +95,7 @@ void SURFST::extractMovingFeatures( std::vector< cv::Mat > frames )
 
 	//..
 	if( frames.size() != _procUnitLength )
-		frames.resize( _procUnitLength );
+		return;
 
 	int N = frames.size();
 	int N2 = N/2;
@@ -132,7 +147,7 @@ void SURFST::extractMovingFeatures( std::vector< cv::Mat > frames )
 void SURFST::computeFeatures( std::vector< cv::Mat > frames )
 {
 	if( frames.size() != _procUnitLength )
-		frames.resize( _procUnitLength );
+		return;
 
 	int N = frames.size();
 	int M = _intervalLength;
@@ -151,8 +166,6 @@ void SURFST::computeFeatures( std::vector< cv::Mat > frames )
 	cv::SURF surf(_hessianThreshold,4,2,false);
 	surf.operator()( frames[0], cv::Mat(), _goodKP, _movingDesc, true );
 	
-	//_movingDesc.resize( _goodKP.size() * 64 );
-
 	for( int i = 0; i < _goodKP.size(); ++i )
 	{
 		_features[i].getAppearanceFeature().resize( surf.descriptorSize() );

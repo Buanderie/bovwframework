@@ -22,7 +22,7 @@ class IClassifier
 		virtual void createModel( CVideoPool* pool, CBoVW* bow ) = 0;
 		virtual void saveModel( std::string fileName ) = 0;
 		virtual void loadModel( std::string fileName ) = 0;
-		virtual std::string label( std::vector<float> bowVector ) = 0;
+		virtual std::string label( std::vector<float> bowVector, CVideoPool* pool, CBoVW* bow, std::vector<float>& truthValues ) = 0;
 };
 
 #endif

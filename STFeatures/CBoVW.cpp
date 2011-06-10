@@ -445,19 +445,54 @@ void BOW::createClassificationModel()
 		_classifier->createModel( this->_videoPool, this );
 }
 
-void BOW::label( std::vector< cv::Mat > frames )
+void BOW::saveClassificationModel( std::string fileName )
 {
-
+	if( _classifier != 0 )
+		_classifier->saveModel( fileName );
 }
 
-void BOW::label( std::vector< float > bowValues )
+void BOW::loadClassificationModel( std::string fileName )
 {
-
+	if( _classifier != 0 )
+		_classifier->loadModel( fileName );
 }
 
-void BOW::label( std::string videoName )
+std::string BOW::label( std::vector< cv::Mat > frames, vector<float>& truthValues )
 {
+	//Compute features from frames
+	_extractor->computeFeatures( frames, 0 );
 
+	//Compute BoVW
+	vector<float> bowValues;
+	this->computeBoW( _extractor->getFeatures(), bowValues );
+	 
+	//Label
+	return this->label( bowValues, truthValues );
+}
+
+std::string BOW::label( std::vector< float > bowValues, vector<float>& truthValues )
+{
+	string result;
+	if( _classifier != 0 )
+	{
+		result = _classifier->label( bowValues, _videoPool, this, truthValues );
+	}
+	else
+		result = "notclassified";
+
+	return result;
+}
+
+std::string BOW::label( std::string videoName, vector<float>& truthValues )
+{
+	string result;
+	//Compute features from video
+
+	//Compute BoVW
+
+	//Label
+
+	return result;
 }
 
 #undef BOW

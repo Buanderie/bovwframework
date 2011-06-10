@@ -45,9 +45,9 @@ class CBoVW
 		* Classification
 		*/
 		void createClassificationModel();
-		void label( std::vector< cv::Mat > frames );
-		void label( std::vector< float > bowValues );
-		void label( std::string videoName );
+		std::string label( std::vector< cv::Mat > frames, std::vector<float>& truthValues );
+		std::string label( std::vector< float > bowValues, std::vector<float>& truthValues );
+		std::string label( std::string videoName, std::vector<float>& truthValues );
 
 		/*
 		* BoW Computation

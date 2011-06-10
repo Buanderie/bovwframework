@@ -101,15 +101,17 @@ void ANN::loadModel( std::string fileName )
 		ann = fann_create_from_file( fileName.c_str() );
 }
 
-std::string ANN::label( std::vector<float> bowVector )
+std::string ANN::label( std::vector<float> bowVector, CVideoPool* pool, CBoVW* bow, std::vector<float>& truthValues )
 {
+	const int nClasses = pool->getClassList().size();
 	float* rawFeat = new float[ bowVector.size() ];
 	std::copy( bowVector.begin(), bowVector.end(), rawFeat );
+	//float* ann_response = new float[ pool->getClassList().size() ];
 	float* ann_response = 0;
 
 	if( ann != 0 )
 	{
-		float* ann_response = fann_run( ann, rawFeat );	
+		ann_response = fann_run( ann, rawFeat );	
 	}
 	else
 		return "notclassified";
@@ -126,7 +128,16 @@ std::string ANN::label( std::vector<float> bowVector )
 		}
 	}
 
-	return "polbak";
+	delete[] rawFeat;
+	
+	truthValues.resize( nClasses );
+	copy( ann_response, ann_response + nClasses, truthValues.begin() );
+
+	vector<string> classNames = pool->getClassList();
+	if( maxIdx >= 0 )
+		return classNames[maxIdx];
+	else
+		return "notclassified";
 }
 
 #undef ANN
