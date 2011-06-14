@@ -19,7 +19,7 @@ class CVideoPool
 		std::vector< std::string > getClassList();
 		std::vector<CVideoEntry>& getVideoEntries();
 		void addVideoEntry( CVideoEntry entry );
-
+		void loadFromXml( std::string xmlFile );
 };
 
 #endif

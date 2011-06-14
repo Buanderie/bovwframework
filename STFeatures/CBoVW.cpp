@@ -246,6 +246,8 @@ void BOW::computeFeatures()
 		}
 		//
 		_videoPool->getVideoEntries()[i].setFeatures( entryFeatures );
+		std::cout << "extracted " << entryFeatures.size() << " ST Features" << std::endl;
+		_extractor->clear();
 		prof.stop();
 		accProcTime += prof.getSeconds();
 		ETA = (accProcTime/((double)(i+1)))*((double)corpusSize);

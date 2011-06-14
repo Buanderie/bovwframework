@@ -26,6 +26,11 @@ SURFST::~SURFSTExtractor()
 
 }
 
+void SURFST::clear()
+{
+	_features.clear();
+}
+
 int SURFST::getFeatureLength()
 {
 	return (64 + ( _procUnitLength / _intervalLength )*5);
@@ -51,7 +56,6 @@ int	SURFST::computeFeatures( std::vector< cv::Mat > frames, int framePos )
 		frames.erase( frames.begin(), frames.begin() + 20 );
 
 	}
-
 	return 0;
 }
 
@@ -156,8 +160,9 @@ void SURFST::computeFeatures( std::vector< cv::Mat > frames )
 	vector< float > err;
 	vector< Point2f > ofPointsNext;
 	vector< Point2f > ofPointsPrev;
+	vector< STFeature > tempFeatures;
 
-	_features.resize( _goodKP.size() );
+	tempFeatures.resize( _goodKP.size() );
 
 	for( int i = 0; i < _goodKP.size(); ++i )
 		ofPointsNext.push_back( _goodKP[i].pt );
@@ -168,9 +173,9 @@ void SURFST::computeFeatures( std::vector< cv::Mat > frames )
 	
 	for( int i = 0; i < _goodKP.size(); ++i )
 	{
-		_features[i].getAppearanceFeature().resize( surf.descriptorSize() );
+		tempFeatures[i].getAppearanceFeature().resize( surf.descriptorSize() );
 		int offset = surf.descriptorSize() * i;
-		copy( _movingDesc.begin() + offset, _movingDesc.begin() + offset + surf.descriptorSize(), _features[i].getAppearanceFeature().begin() );
+		copy( _movingDesc.begin() + offset, _movingDesc.begin() + offset + surf.descriptorSize(), tempFeatures[i].getAppearanceFeature().begin() );
 	}
 	//
 
@@ -185,11 +190,11 @@ void SURFST::computeFeatures( std::vector< cv::Mat > frames )
 	vector<float> tempMotionFeat;
 	tempMotionFeat.resize((nInter)*5);
 	fill( tempMotionFeat.begin(), tempMotionFeat.end(), 0.0f );
-	for( int k = 0; k < _features.size(); ++k )
+	for( int k = 0; k < tempFeatures.size(); ++k )
 	{
-		_features[k].setMotionFeature(tempMotionFeat);
-		_features[k].setProcUnitLength( N );
-		_features[k].setIntervalLength( M );
+		tempFeatures[k].setMotionFeature(tempMotionFeat);
+		tempFeatures[k].setProcUnitLength( N );
+		tempFeatures[k].setIntervalLength( M );
 	}
 
 	//Extracting motion features
@@ -215,7 +220,7 @@ void SURFST::computeFeatures( std::vector< cv::Mat > frames )
 		for( int k = 0; k < ofPointsPrev.size(); ++k )
 		{
 			Point2f rot;
-			tempMotionFeat = _features[k].getMotionFeature();
+			tempMotionFeat = tempFeatures[k].getMotionFeature();
 
 			Point2f diff( ofPointsNext[k].x - ofPointsPrev[k].x, ofPointsNext[k].y - ofPointsPrev[k].y );
 			float mov = sqrt(diff.dot(diff));
@@ -247,10 +252,15 @@ void SURFST::computeFeatures( std::vector< cv::Mat > frames )
 				tempMotionFeat[i*5 + 4] += 1.0f;
 			}
 
-			_features[k].getMotionTrack().push_back( ofPointsNext[k] );
-			_features[k].getTimeStamps().push_back( (float)( _currentFrame - N + i ) );
-			_features[k].setMotionFeature( tempMotionFeat );
+			tempFeatures[k].getMotionTrack().push_back( ofPointsNext[k] );
+			tempFeatures[k].getTimeStamps().push_back( (float)( _currentFrame - N + i ) );
+			tempFeatures[k].setMotionFeature( tempMotionFeat );
 		}
+	}
+	
+	for( int i = 0; i < tempFeatures.size(); ++i )
+	{
+		_features.push_back( tempFeatures[i] );
 	}
 }
 

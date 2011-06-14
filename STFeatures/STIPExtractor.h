@@ -11,6 +11,7 @@ class STIPExtractor : public ISTExtractor
 		virtual int getFeatureLength();
 		virtual int	computeFeatures( std::vector< cv::Mat > frames, int framePos );
 		virtual std::vector<STFeature>	getFeatures();
+		virtual void clear();
 };
 
 #endif

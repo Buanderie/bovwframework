@@ -15,6 +15,11 @@ STIP::~STIP()
 
 }
 
+void STIP::clear()
+{
+	
+}
+
 int STIP::getFeatureLength()
 {
 	return 0;
