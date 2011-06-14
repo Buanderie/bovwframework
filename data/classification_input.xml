@@ -1,0 +1,19 @@
+<videopool>
+
+<entry class="walk">
+Z:\walk\denis_walk.avi
+</entry>
+
+<entry class="run">
+Z:\run\denis_run.avi
+</entry>
+
+<entry class="jump">
+Z:\jump\denis_jump.avi
+</entry>
+
+<entry class="bend">
+Z:\bend\denis_bend.avi
+</entry>
+
+</videopool>

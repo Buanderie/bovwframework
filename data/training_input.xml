@@ -1,0 +1,79 @@
+<videopool>
+
+<entry class="walk">
+Z:\walk\eli_walk.avi
+</entry>
+<entry class="walk">
+Z:\walk\shahar_walk.avi
+</entry>
+<entry class="walk">
+Z:\walk\moshe_walk.avi
+</entry>
+<entry class="walk">
+Z:\walk\ira_walk.avi
+</entry>
+<entry class="walk">
+Z:\walk\daria_walk.avi
+</entry>
+<entry class="walk">
+Z:\walk\lyova_walk.avi
+</entry>
+
+<entry class="run">
+Z:\run\eli_run.avi
+</entry>
+<entry class="run">
+Z:\run\shahar_run.avi
+</entry>
+<entry class="run">
+Z:\run\moshe_run.avi
+</entry>
+<entry class="run">
+Z:\run\ira_run.avi
+</entry>
+<entry class="run">
+Z:\run\daria_run.avi
+</entry>
+<entry class="run">
+Z:\run\lyova_run.avi
+</entry>
+
+<entry class="jump">
+Z:\jump\eli_jump.avi
+</entry>
+<entry class="jump">
+Z:\jump\shahar_jump.avi
+</entry>
+<entry class="jump">
+Z:\jump\moshe_jump.avi
+</entry>
+<entry class="jump">
+Z:\jump\ira_jump.avi
+</entry>
+<entry class="jump">
+Z:\jump\daria_jump.avi
+</entry>
+<entry class="jump">
+Z:\jump\lyova_jump.avi
+</entry>
+
+<entry class="bend">
+Z:\bend\eli_bend.avi
+</entry>
+<entry class="bend">
+Z:\bend\shahar_bend.avi
+</entry>
+<entry class="bend">
+Z:\bend\moshe_bend.avi
+</entry>
+<entry class="bend">
+Z:\bend\ira_bend.avi
+</entry>
+<entry class="bend">
+Z:\bend\daria_bend.avi
+</entry>
+<entry class="bend">
+Z:\bend\lyova_bend.avi
+</entry>
+
+</videopool>

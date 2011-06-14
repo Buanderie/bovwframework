@@ -1,0 +1,1 @@
+STFeatures.exe -classification classification_input.xml voc_output.voc model_output.net output.txt

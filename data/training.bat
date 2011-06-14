@@ -1,0 +1,1 @@
+STFeatures.exe -training training_input.xml voc_output.voc model_output.net
