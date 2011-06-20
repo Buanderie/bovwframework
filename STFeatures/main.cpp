@@ -104,8 +104,10 @@ int main( int argc, char** argv )
 		detector.setResultCallback( actioncb );
 
 		//Test Video
-		cv::VideoCapture cap("Z:\\HumanDetection\\videos_hbd\\6pc0.avi");
-		
+		//cv::VideoCapture cap("Z:\\HumanDetection\\videos_hbd\\6pc0.avi");
+		//cv::VideoCapture cap("Z:\\walking.avi");
+		cv::VideoCapture cap(0);
+
 		double videoFrameRate = cap.get( CV_CAP_PROP_FPS );
 
 		cv::Mat frame;
@@ -131,10 +133,12 @@ int main( int argc, char** argv )
 			if( elapsed_t < msecPerFrame )
 			{
 				waitVal = (int)( msecPerFrame - elapsed_t );
+				if( waitVal < 1 )
+					waitVal = 1;
+				cout << "waitVal=" << waitVal << endl;
 			}
 			char c = cv::waitKey(waitVal);
 			
-			//char c = cv::waitKey(5);
 			if( c == 27 )
 				break;
 		

@@ -1,18 +1,27 @@
 #include "VideoPool.h"
 
+//STL
 #include <vector>
 #include <string>
 #include <fstream>
 #include <iostream>
+#include <algorithm>
+#include <sstream>
 
+//Boost
+#include <boost/filesystem.hpp>
+
+//RapidXML
 #include "..\rapidxml\rapidxml.hpp"
 
+//Internal
 #include "VideoEntry.h"
 
 #define POOL CVideoPool
 
 using namespace std;
 using namespace rapidxml;
+using namespace boost::filesystem;
 
 /*
 UTILS
@@ -106,6 +115,30 @@ void POOL::loadFromXml( std::string xmlFile )
 		string className = nClass->value();
 		string fileName = nEntry->value();
 		this->addVideoEntry( CVideoEntry( fileName, className ) );
+	}
+
+	for( xml_node<> *nEntry = nRoot->first_node("folderentry",11); nEntry != 0; nEntry = nEntry->next_sibling("folderentry",11))
+	{
+		xml_attribute<>* nClass = nEntry->first_attribute("class",5);
+		string className = nClass->value();
+		string folderName = nEntry->value();
+		
+		path p( folderName.c_str() );
+		if( exists(p) && is_directory(p) )
+		{
+			vector<path> vec;
+			copy( directory_iterator(p), directory_iterator(), back_inserter(vec));
+
+			for (vector<path>::const_iterator it (vec.begin()); it != vec.end(); ++it)
+			{
+				stringstream sstr;
+				sstr << (*it);
+				string fileName;
+				sstr >> fileName;
+				fileName = (*it).string();
+				this->addVideoEntry( CVideoEntry( fileName, className ) );
+	        }
+		}
 	}
 }
 

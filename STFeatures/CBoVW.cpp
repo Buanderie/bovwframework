@@ -30,6 +30,7 @@ void BOW::init()
 	_extractor = 0;
 	_classifier = 0;
 	_videoPool = 0;
+	_featureCountThreshold = 10;
 }
 
 void BOW::setExtractor( ISTExtractor* extractor )
@@ -463,6 +464,10 @@ std::string BOW::label( std::vector< cv::Mat > frames, vector<float>& truthValue
 {
 	//Compute features from frames
 	_extractor->computeFeatures( frames, 0 );
+
+	//Check if we have enough features
+	if( _extractor->getFeatures().size() < _featureCountThreshold )
+		return "not_enough_features";
 
 	//Compute BoVW
 	vector<float> bowValues;

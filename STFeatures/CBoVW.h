@@ -18,6 +18,7 @@ class CBoVW
 		int featureVQ( STFeature& feat );
 
 		int _vocabSize;
+		int _featureCountThreshold;
 		std::vector< std::vector< float > > _vocabulary;
 		ISTExtractor*	_extractor;
 		IClassifier*	_classifier;
@@ -35,6 +36,8 @@ class CBoVW
 
 		int getVocabSize(){ return _vocabSize; }
 		void setVocabSize( int val ){ _vocabSize = val; }
+		int getFeatureCountThrehsold(){ return _featureCountThreshold; }
+		void setFeatureCountThreshold(int Val){ _featureCountThreshold = Val; }
 
 		void setExtractor( ISTExtractor* extractor );
 		void setClassifier( IClassifier* classifier );

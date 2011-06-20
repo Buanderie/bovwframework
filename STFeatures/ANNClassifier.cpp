@@ -80,7 +80,7 @@ void ANN::createModel( CVideoPool* pool, CBoVW* bow )
 	const unsigned int num_input = bow->getVocabSize();
 	const unsigned int num_output = _classNames.size();
 	const unsigned int num_layers = 3;
-	const unsigned int num_neurons_hidden = 4;
+	const unsigned int num_neurons_hidden = 24;
 	const float desired_error = (const float) 0.0001;
 	const unsigned int max_epochs = 500000;
 	const unsigned int epochs_between_reports = 1;
@@ -124,7 +124,7 @@ std::string ANN::label( std::vector<float> bowVector, CVideoPool* pool, CBoVW* b
 	float* rawFeat = new float[ bowVector.size() ];
 	std::copy( bowVector.begin(), bowVector.end(), rawFeat );
 	//float* ann_response = new float[ pool->getClassList().size() ];
-	float* ann_response = new float[ nClasses ];
+	float* ann_response;
 
 	if( ann != 0 )
 	{
