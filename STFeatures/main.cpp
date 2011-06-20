@@ -1,7 +1,17 @@
+//STL
 #include <iostream>
 #include <fstream>
 #include <iomanip>
+#include <vector>
 
+//OpenCV 2.X
+#include <opencv2\highgui\highgui.hpp>
+#include <opencv2\imgproc\imgproc.hpp>
+
+//Boost
+#include <boost/timer.hpp>
+
+//Internal
 #include "CBoVW.h"
 #include "VideoPool.h"
 #include "SURFSTExtractor.h"
@@ -9,6 +19,7 @@
 #include "ANNClassifier.h"
 #include "GenUtils.h"
 #include "CProfiler.h"
+#include "ActionDetector.h"
 
 using namespace cv;
 using namespace std;
@@ -18,8 +29,20 @@ void usage( char** argv )
 	cout << argv[0] << " usage:" << endl;
 }
 
+void actioncb( string className, vector<float> results )
+{
+	cout << className << " - ";
+	for( int i = 0; i < results.size(); ++i )
+	{
+		cout << results[i] << ";";
+	}
+	cout << endl;
+}
+
 int main( int argc, char** argv )
 {
+	CActionDetector act;
+
 	//0 - Training
 	//1 - Classification
 	int mode = 0;
@@ -74,35 +97,51 @@ int main( int argc, char** argv )
 		bow->saveVocabulary(vocFile);
 		bow->saveClassificationModel(modelFile);
 	}
-
-	//Classification
+	
 	if( mode == 1 )
 	{
-		bow->loadVocabulary(vocFile);
-		bow->loadClassificationModel(modelFile);
-		bow->computeFeatures();
-		bow->computeBoW();
+		CActionDetector detector( vocFile, modelFile );
+		detector.setResultCallback( actioncb );
 
-		//Last step: labeling and output
-		//
-		vector<string> classList = pool->getClassList();
-		vector<float> truth;
-		truth.resize( classList.size() );
-		for( int i = 0; i < pool->getVideoEntries().size(); ++i )
+		//Test Video
+		cv::VideoCapture cap("Z:\\HumanDetection\\videos_hbd\\6pc0.avi");
+		
+		double videoFrameRate = cap.get( CV_CAP_PROP_FPS );
+
+		cv::Mat frame;
+
+		boost::timer t;
+		
+		int framepos = 0;
+		for(;;)
 		{
-			vector<float> bowValues = pool->getVideoEntries()[i].getBoWVector();
-			cout << "video_" << i;
-			string classname = bow->label( bowValues,truth );
-			cout << " class=\"" << classname << "\" - ";
-			for( int j = 0; j < truth.size(); ++j )
+			cap >> frame;
+			if( frame.empty() )
+				break;
+
+			t.restart();
+			detector.update( frame );
+			imshow( "video", frame );
+			double elapsed_t = 1000.0 * t.elapsed();
+
+			//25 fps = 0.04s / frame
+			int waitVal = 1;
+			double msecPerFrame = (1.0 / videoFrameRate)*1000.0;
+
+			if( elapsed_t < msecPerFrame )
 			{
-				cout << truth[j] << ";";
+				waitVal = (int)( msecPerFrame - elapsed_t );
 			}
-			cout << endl;
+			char c = cv::waitKey(waitVal);
+			
+			//char c = cv::waitKey(5);
+			if( c == 27 )
+				break;
+		
+			framepos++;
 		}
-		//
 	}
-	
+
 	delete classifier;
 	delete pool;
 	delete extractor;

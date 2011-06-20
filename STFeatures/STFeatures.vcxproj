@@ -51,12 +51,12 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\fann\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\fann\include;Z:\boost_1_46_1\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\OpenCV2.2\lib;..\fann\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\OpenCV2.2\lib;..\fann\lib;Z:\boost_1_46_1\stage\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>opencv_core220d.lib;opencv_features2d220d.lib;opencv_ffmpeg220d.lib;opencv_highgui220d.lib;opencv_imgproc220d.lib;opencv_legacy220d.lib;opencv_objdetect220d.lib;opencv_video220d.lib;fannfloatMT.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -81,12 +81,14 @@
     <ClCompile Include="..\kmpp\KMeans.cpp" />
     <ClCompile Include="..\kmpp\KmTree.cpp" />
     <ClCompile Include="..\kmpp\KmUtils.cpp" />
+    <ClCompile Include="ActionDetector.cpp" />
     <ClCompile Include="ANNClassifier.cpp" />
     <ClCompile Include="CBoVW.cpp" />
     <ClCompile Include="CProfiler.cpp" />
     <ClCompile Include="GenUtils.cpp" />
     <ClCompile Include="LogMgr.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="ModelArchiver.cpp" />
     <ClCompile Include="STFeature.cpp" />
     <ClCompile Include="STIPExtractor.cpp" />
     <ClCompile Include="SURFSTExtractor.cpp" />
@@ -97,6 +99,7 @@
     <ClInclude Include="..\kmpp\KMeans.h" />
     <ClInclude Include="..\kmpp\KmTree.h" />
     <ClInclude Include="..\kmpp\KmUtils.h" />
+    <ClInclude Include="ActionDetector.h" />
     <ClInclude Include="ANNClassifier.h" />
     <ClInclude Include="CBoVW.h" />
     <ClInclude Include="CProfiler.h" />
@@ -104,6 +107,7 @@
     <ClInclude Include="IClassifier.h" />
     <ClInclude Include="ISTExtractor.h" />
     <ClInclude Include="LogMgr.h" />
+    <ClInclude Include="ModelArchiver.h" />
     <ClInclude Include="Singleton.h" />
     <ClInclude Include="STFeature.h" />
     <ClInclude Include="STIPExtractor.h" />

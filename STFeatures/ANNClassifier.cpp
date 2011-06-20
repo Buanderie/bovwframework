@@ -11,6 +11,7 @@
 
 #include "CBoVW.h"
 #include "VideoPool.h"
+#include "ModelArchiver.h"
 
 #define ANN CANNClassifier
 
@@ -92,22 +93,38 @@ void ANN::createModel( CVideoPool* pool, CBoVW* bow )
 
 void ANN::saveModel( std::string fileName )
 {
-	fann_save(ann, fileName.c_str() );
+	string netFileName = string("net_")+fileName;
+	fann_save(ann, netFileName.c_str() );
+
+	//Model Archiver
+	CModelArchiver archiver;
+	archiver.write( _classNames, netFileName, fileName );
+	//
 }
 
 void ANN::loadModel( std::string fileName )
 {
+	string netFileName;
+
+	//Model Archiver
+	CModelArchiver archiver;
+	archiver.read( fileName, netFileName );
+	//
+
 	if( ann == 0 )
-		ann = fann_create_from_file( fileName.c_str() );
+		ann = fann_create_from_file( netFileName.c_str() );
+
+	//retrieve class list
+	this->_classNames = archiver.getClassList();
 }
 
 std::string ANN::label( std::vector<float> bowVector, CVideoPool* pool, CBoVW* bow, std::vector<float>& truthValues )
 {
-	const int nClasses = pool->getClassList().size();
+	const int nClasses = _classNames.size();
 	float* rawFeat = new float[ bowVector.size() ];
 	std::copy( bowVector.begin(), bowVector.end(), rawFeat );
 	//float* ann_response = new float[ pool->getClassList().size() ];
-	float* ann_response = 0;
+	float* ann_response = new float[ nClasses ];
 
 	if( ann != 0 )
 	{
@@ -127,15 +144,13 @@ std::string ANN::label( std::vector<float> bowVector, CVideoPool* pool, CBoVW* b
 			maxIdx = i;
 		}
 	}
-
 	delete[] rawFeat;
 	
 	truthValues.resize( nClasses );
 	copy( ann_response, ann_response + nClasses, truthValues.begin() );
 
-	vector<string> classNames = pool->getClassList();
-	if( maxIdx >= 0 )
-		return classNames[maxIdx];
+	if( maxIdx >= 0 && _classNames.size() != 0 )
+		return _classNames[maxIdx];
 	else
 		return "notclassified";
 }

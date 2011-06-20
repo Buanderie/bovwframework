@@ -15,7 +15,6 @@ class CBoVW
 		void init();
 	
 		void computeVideoFeatures( std::string fileName, std::vector<STFeature>& featureVec );
-		void computeBoW( std::vector<STFeature>& features, std::vector< float >& output ); 
 		int featureVQ( STFeature& feat );
 
 		int _vocabSize;
@@ -55,6 +54,7 @@ class CBoVW
 		void computeFeatures();
 		void buildVocabulary();
 		void computeBoW();		
+		void computeBoW( std::vector<STFeature>& features, std::vector< float >& output ); 
 
 		/*
 		* I/O Functions

@@ -154,7 +154,7 @@ void BOW::computeBoW( std::vector<STFeature>& features, std::vector< float >& ou
 	vector< int > bow;
 	bow.resize( _vocabSize );
 	std::fill( bow.begin(), bow.end(), 0 );
-	cout << "VQ Step..." << endl;
+	//cout << "VQ Step..." << endl;
 	
 	int lastPercent = 0;
 
@@ -163,13 +163,13 @@ void BOW::computeBoW( std::vector<STFeature>& features, std::vector< float >& ou
 		int progress = (int)(ceil( (double)i / (double)(features.size())*100 ));
 		if( progress != lastPercent )
 		{
-			cout << progress << "%" << endl;
+			//cout << progress << "%" << endl;
 			lastPercent = progress;
 		}
 		int word = featureVQ( features[i] );
 		bow[ word ] += 1;
 	}
-	cout << "Done!" << endl;
+	//cout << "Done!" << endl;
 
 	//Normalize bag of word
 	output.resize( _vocabSize );
@@ -475,6 +475,10 @@ std::string BOW::label( std::vector< cv::Mat > frames, vector<float>& truthValue
 std::string BOW::label( std::vector< float > bowValues, vector<float>& truthValues )
 {
 	string result;
+
+	if( _videoPool == 0 )
+		_videoPool = new CVideoPool();
+
 	if( _classifier != 0 )
 	{
 		result = _classifier->label( bowValues, _videoPool, this, truthValues );
