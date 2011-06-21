@@ -105,8 +105,8 @@ int main( int argc, char** argv )
 
 		//Test Video
 		//cv::VideoCapture cap("Z:\\HumanDetection\\videos_hbd\\6pc0.avi");
-		//cv::VideoCapture cap("Z:\\walking.avi");
-		cv::VideoCapture cap(0);
+		cv::VideoCapture cap("Z:\\compil.avi");
+		//cv::VideoCapture cap(0);
 
 		double videoFrameRate = cap.get( CV_CAP_PROP_FPS );
 
@@ -135,7 +135,7 @@ int main( int argc, char** argv )
 				waitVal = (int)( msecPerFrame - elapsed_t );
 				if( waitVal < 1 )
 					waitVal = 1;
-				cout << "waitVal=" << waitVal << endl;
+				//cout << "waitVal=" << waitVal << endl;
 			}
 			char c = cv::waitKey(waitVal);
 			
