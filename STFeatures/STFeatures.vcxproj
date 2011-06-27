@@ -86,6 +86,7 @@
     <ClCompile Include="CBoVW.cpp" />
     <ClCompile Include="CProfiler.cpp" />
     <ClCompile Include="GenUtils.cpp" />
+    <ClCompile Include="GraphUtils.cpp" />
     <ClCompile Include="LogMgr.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ModelArchiver.cpp" />
@@ -104,6 +105,7 @@
     <ClInclude Include="CBoVW.h" />
     <ClInclude Include="CProfiler.h" />
     <ClInclude Include="GenUtils.h" />
+    <ClInclude Include="GraphUtils.h" />
     <ClInclude Include="IClassifier.h" />
     <ClInclude Include="ISTExtractor.h" />
     <ClInclude Include="LogMgr.h" />

@@ -20,6 +20,7 @@
 #include "GenUtils.h"
 #include "CProfiler.h"
 #include "ActionDetector.h"
+#include "GraphUtils.h"
 
 using namespace cv;
 using namespace std;
@@ -29,8 +30,14 @@ void usage( char** argv )
 	cout << argv[0] << " usage:" << endl;
 }
 
+vector< vector< float > > classHistory;
 void actioncb( string className, vector<float> results )
 {
+	if( classHistory.size() >= 100 )
+		classHistory.erase( classHistory.begin() );
+
+	classHistory.push_back( results );
+
 	cout << className << " - ";
 	for( int i = 0; i < results.size(); ++i )
 	{
@@ -103,9 +110,10 @@ int main( int argc, char** argv )
 		CActionDetector detector( vocFile, modelFile );
 		detector.setResultCallback( actioncb );
 
+		
 		//Test Video
-		//cv::VideoCapture cap("Z:\\HumanDetection\\videos_hbd\\6pc0.avi");
-		cv::VideoCapture cap("Z:\\compil.avi");
+		cv::VideoCapture cap("Z:\\HumanDetection\\videos_hbd\\6pc0.avi");
+		//cv::VideoCapture cap("Z:\\compil.avi");
 		//cv::VideoCapture cap(0);
 
 		double videoFrameRate = cap.get( CV_CAP_PROP_FPS );
@@ -123,6 +131,27 @@ int main( int argc, char** argv )
 
 			t.restart();
 			detector.update( frame );
+
+			IplImage iplimg;
+			iplimg = frame;
+			if( classHistory.size() > 0 )
+			{
+				//For each class
+				for( int i = 0; i < 3; ++i )
+				{
+					vector<float> values;
+					for( int j = 0; j < classHistory.size(); ++j )
+					{
+						if( classHistory[j].size() >= 3 )
+							values.push_back( classHistory[j][i] );
+					}
+					setGraphColor(i);
+					if( values.size() > 0 )
+						drawFloatGraph( &values[0], values.size(), &iplimg, -1.0f, 1.0f, iplimg.width, iplimg.height );
+				}
+			}
+			frame = cvarrToMat( &iplimg );
+
 			imshow( "video", frame );
 			double elapsed_t = 1000.0 * t.elapsed();
 

@@ -55,6 +55,10 @@ class CActionDetector
 		//callback
 		void setResultCallback( actionDetectionCallback cb );
 
+		//Properties
+		int getClassCount();
+		std::vector< std::string > getClassNames();
+
 };
 
 #endif
