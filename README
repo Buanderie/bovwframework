@@ -1,0 +1,8 @@
+This is an old project trying to implement and test a Bag-of-SpatioTemporal-Features 
+for action classification and recognition.</p>
+
+It uses a spatio-temporal extension to SURF features for feature detection/description,
+kNN for feature clustering and vocabulary building, 
+as well as FANN (Fast Artifical Neural Network) for classification.
+
+This project is kind of obsolete now, as my Action recognition effort will now focus more on OpenSTIP
